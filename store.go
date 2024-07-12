@@ -119,7 +119,9 @@ func (s *Store) readStream(key string) (io.ReadCloser, error) {
 	fullPathWithRoot := fmt.Sprintf("%s/%s", s.Root, pathKey.FullPath())
 	return os.Open(fullPathWithRoot)
 }
-
+func (s *Store) Write(key string, r io.Reader) error {
+	return s.writeStream(key, r)
+}
 func (s *Store) writeStream(key string, r io.Reader) error {
 	pathKey := s.PathTransformFunc(key)
 	pathNameWithRoot := fmt.Sprintf("%s/%s", s.Root, pathKey.PathName)

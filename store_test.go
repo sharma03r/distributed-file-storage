@@ -57,25 +57,28 @@ func TestStore(t *testing.T) {
 
 	defer teardown(t, s)
 
-	key := "myspecialpicture"
-	data := []byte("some jpeg bytes")
-	if err := s.writeStream(key, bytes.NewReader(data)); err != nil {
-		t.Error(err)
+	for i := 0; i < 50; i++ {
+		key := fmt.Sprintf("foo_%d", i)
+		data := []byte("some jpeg bytes")
+		if err := s.writeStream(key, bytes.NewReader(data)); err != nil {
+			t.Error(err)
+		}
+		if ok := s.Has(key); !ok {
+			t.Errorf("expected to have key %s", key)
+		}
+		r, err := s.Read(key)
+		if err != nil {
+			t.Error(err)
+		}
+		b, _ := io.ReadAll(r)
+		if string(b) != string(data) {
+			t.Errorf("want %s got %s", data, b)
+		}
+		fmt.Println(string(b))
+		s.Delete(key)
+		if ok := s.Has(key); ok {
+			t.Errorf("did not expect to have key %s", key)
+		}
 	}
-	if ok := s.Has(key); !ok {
-		t.Errorf("expected to have key %s", key)
-	}
-	r, err := s.Read(key)
-	if err != nil {
-		t.Error(err)
-	}
-	b, _ := io.ReadAll(r)
-	if string(b) != string(data) {
-		t.Errorf("want %s got %s", data, b)
-	}
-	fmt.Println(string(b))
-	s.Delete(key)
-	if ok := s.Has(key); ok {
-		t.Errorf("did not expect to have key %s", key)
-	}
+
 }
